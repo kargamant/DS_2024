@@ -1,8 +1,9 @@
 library(ggplot2)
 
-
+k<-7
+itr_max <- 20
 # clustering
-clusterisation <- kmeans(income_elec_state, 10, nstart=50)
+clusterisation <- kmeans(income_elec_state, k, nstart=50, iter.max = itr_max)
 
 # assigning cluster to every state
 income_elec_state["cluster"] <- as.factor(unlist(clusterisation["cluster"]))
@@ -20,7 +21,7 @@ income_elec_state["center_y"] <- centers_elec
 plt_data <- ggplot(income_elec_state, aes(unlist(income_elec_state["income"]), unlist(income_elec_state["elec"]), color=unlist(income_elec_state["cluster"])))
 plt_centroids <- ggplot(income_elec_state, aes(unlist(income_elec_state["center_x"]), unlist(income_elec_state["center_y"])))
 plt_data + geom_point() + geom_point(aes(unlist(income_elec_state["center_x"]), unlist(income_elec_state["center_y"])), colour="black") + labs(title="clusters", x="income", y="elec", colour="cluster")
-ggsave("plt_k_10.png")
+ggsave(paste("plt_k_", as.character(k), ".png"))
 
 # finding optimal k
 k_vals <- c(1:30)
@@ -42,7 +43,7 @@ income_elec_state["log_elec"] <- lapply(income_elec_state["elec"], log10)
 
 df <- data.frame(log_income=income_elec_state["log_income"], log_elec=income_elec_state["log_elec"])
 
-clusterisation <- kmeans(df, 14, nstart=50)
+clusterisation <- kmeans(df, k, nstart=50, iter.max = itr_max)
 
 centers_income <- as.data.frame(clusterisation["centers"])["centers.log_income"]
 centers_elec <- as.data.frame(clusterisation["centers"])["centers.log_elec"]
@@ -56,9 +57,11 @@ df["center_y"] <- centers_elec
 
 plt <- ggplot(df, aes(unlist(df["log_income"]), unlist(df["log_elec"]), color = unlist(df["cluster"])))
 plt + geom_point() + geom_point(aes(unlist(df["center_x"]), unlist(df["center_y"])), color="black") + labs(title="clusters", x="log_income", y="log_elec", colour="cluster")
-ggsave("plt_k_16_log.png")
+ggsave(paste("plt_k_", as.character(16), "_log.png"))
 
 # finding optimal k for log scale
+df <- subset(df, df["log_income"]>4.5 & df["log_elec"]>2.8)
+
 k_vals <- c(1:30)
 df <- data.frame(log_income=df["log_income"], log_elec=df["log_elec"])
 
@@ -67,9 +70,9 @@ wss <- sapply(k_vals, function(val) sum(unlist(kmeans(df, val, nstart=50)["withi
 df <- data.frame(k=k_vals, wss=wss)
 elbow_plt <- ggplot(df, aes(k_vals, wss))
 elbow_plt + geom_point() + labs(x="k") + scale_x_continuous(breaks=c(1:30))
-
+ggsave("elbow_plt_log.png")
 # without obvious outliers
-df <- subset(df, df["log_income"]>4.5 & df["log_elec"]>2.8)
+
 
 install.packages('maps')
 library(maps)
@@ -96,8 +99,14 @@ us_states <- replace(us_states, us_states=="RI", "Rhode Island")
 
 library(RColorBrewer)
 
-pallette <- brewer.pal(10, "Spectral")
-us_col <- sapply(us_col, function(col) pallette[as.numeric(col)])
+pallette <- brewer.pal(k, "Spectral")
+us_col <- sapply(unlist(income_elec_state["cluster"]), function(col) pallette[as.numeric(col)])
 
 map('state', regions=us_states, col=us_col, fill=TRUE, bg="black")
-legend("bottomright", legend=sort(unique(unlist(df["cluster"]))), fill=pallette, cex=0.7)
+legend("bottomright", legend=sort(unique(unlist(income_elec_state["cluster"]))), fill=pallette, cex=0.7)
+
+income_elec_state['cluster'] <- NULL
+income_elec_state['center_x'] <- NULL
+income_elec_state['center_y'] <- NULL
+income_elec_state['log_income'] <- NULL
+income_elec_state['log_elec'] <- NULL
