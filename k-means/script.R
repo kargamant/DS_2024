@@ -93,5 +93,11 @@ us_states <- replace(us_states, us_states=="SC", "South Carolina")
 us_states <- replace(us_states, us_states=="VT", "Vermont")
 us_states <- replace(us_states, us_states=="GA", "Georgia")
 us_states <- replace(us_states, us_states=="RI", "Rhode Island")
-map('state', regions=us_states, col=us_col, fill=TRUE)
-legend("clusters", legend=levels(us_col), pch=8, col=unique(us_col))
+
+library(RColorBrewer)
+
+pallette <- brewer.pal(10, "Spectral")
+us_col <- sapply(us_col, function(col) pallette[as.numeric(col)])
+
+map('state', regions=us_states, col=us_col, fill=TRUE, bg="black")
+legend("bottomright", legend=sort(unique(unlist(df["cluster"]))), fill=pallette, cex=0.7)
