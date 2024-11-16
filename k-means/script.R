@@ -42,7 +42,7 @@ income_elec_state["log_elec"] <- lapply(income_elec_state["elec"], log10)
 
 df <- data.frame(log_income=income_elec_state["log_income"], log_elec=income_elec_state["log_elec"])
 
-clusterisation <- kmeans(df, 10, nstart=50)
+clusterisation <- kmeans(df, 14, nstart=50)
 
 centers_income <- as.data.frame(clusterisation["centers"])["centers.log_income"]
 centers_elec <- as.data.frame(clusterisation["centers"])["centers.log_elec"]
@@ -50,10 +50,48 @@ centers_elec <- as.data.frame(clusterisation["centers"])["centers.log_elec"]
 centers_income <- lapply(clusterisation["cluster"], function(cluster) centers_income[cluster,])
 centers_elec <- lapply(clusterisation["cluster"], function(cluster) centers_elec[cluster,])
 
+df['cluster'] <- as.factor(unlist(clusterisation['cluster']))
 df["center_x"] <- centers_income
 df["center_y"] <- centers_elec
 
-plt <- ggplot(df, aes(unlist(df["log_income"]), unlist(df["log_elec"]), colour = unlist(df["cluster"])))
-plt + geom_point() + geom_point(aes(unlist(df["center_x"]), unlist(df["center_y"])), colour="black") + labs(title="clusters", x="log_income", y="log_elec", colour="cluster")
-ggsave("plt_k_10_log.png")
+plt <- ggplot(df, aes(unlist(df["log_income"]), unlist(df["log_elec"]), color = unlist(df["cluster"])))
+plt + geom_point() + geom_point(aes(unlist(df["center_x"]), unlist(df["center_y"])), color="black") + labs(title="clusters", x="log_income", y="log_elec", colour="cluster")
+ggsave("plt_k_16_log.png")
 
+# finding optimal k for log scale
+k_vals <- c(1:30)
+df <- data.frame(log_income=df["log_income"], log_elec=df["log_elec"])
+
+wss <- sapply(k_vals, function(val) sum(unlist(kmeans(df, val, nstart=50)["withinss"])))
+
+df <- data.frame(k=k_vals, wss=wss)
+elbow_plt <- ggplot(df, aes(k_vals, wss))
+elbow_plt + geom_point() + labs(x="k") + scale_x_continuous(breaks=c(1:30))
+
+# without obvious outliers
+df <- subset(df, df["log_income"]>4.5 & df["log_elec"]>2.8)
+
+install.packages('maps')
+library(maps)
+
+us_states <- rownames(df)
+us_col <- unlist(df["cluster"])
+
+us_states <- replace(us_states, us_states=="TX", "TEX")
+us_states <- replace(us_states, us_states=="KY", "Kentucky")
+us_states <- replace(us_states, us_states=="KS", "Kansas")
+us_states <- replace(us_states, us_states=="IA", "Iowa")
+us_states <- replace(us_states, us_states=="ND", "North Dakota")
+us_states <- replace(us_states, us_states=="SD", "South Dakota")
+us_states <- replace(us_states, us_states=="LA", "Louisiana")
+us_states <- replace(us_states, us_states=="TN", "Tennessee")
+us_states <- replace(us_states, us_states=="VA", "Virginia")
+us_states <- replace(us_states, us_states=="WV", "West Virginia")
+us_states <- replace(us_states, us_states=="PA", "Pennsylvania")
+us_states <- replace(us_states, us_states=="NC", "North Carolina")
+us_states <- replace(us_states, us_states=="SC", "South Carolina")
+us_states <- replace(us_states, us_states=="VT", "Vermont")
+us_states <- replace(us_states, us_states=="GA", "Georgia")
+us_states <- replace(us_states, us_states=="RI", "Rhode Island")
+map('state', regions=us_states, col=us_col, fill=TRUE)
+legend("clusters", legend=levels(us_col), pch=8, col=unique(us_col))
