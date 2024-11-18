@@ -34,8 +34,10 @@ ggsave("support_confidence_plt.png")
 plt <- ggplot(inspection, aes(
   text=paste(unlist(inspection["lhs"]), unlist(inspection["rhs"]), sep="->"), 
   unlist(inspection["support"]), 
-  unlist(inspection["lift"]), ))
-scatter_plot <- plt + geom_point() + labs(x="support", y="lift")
+  unlist(inspection["lift"]), 
+  colour=unlist(inspection["confidence"])),
+  )
+scatter_plot <- plt + geom_point() + labs(x="support", y="lift", color="confidence")
 ggplotly(scatter_plot)
 ggsave("support_lift_plt.png")
 
@@ -62,6 +64,7 @@ ggsave("matrix_based_viz_lift_plt.png")
 # {item15, item49} -> {item56}
 # {item30, item49, item84} -> {item56}
 # {item30, item49, item56} -> {item15}
+# vary from step 3 because those didn't have confidence more than 0.8, so they didn't occured here
 
 plt <- ggplot(inspection,
               aes(
@@ -82,4 +85,37 @@ ggsave("matrix_based_viz_conf_plt.png")
 # {item49, item56, item84} -> {item30}
 # {item49, item56} -> {item30}
 # {item15, item49, item84} -> {item30}
+# {item15, item30, item49} -> {item56}
+
+
+library(igraph)
+
+lhs <- unlist(inspection["lhs"])
+rhs <- unlist(inspection["rhs"])
+vertecies <- c(lhs, rhs)
+matr <- matrix(0, nrow=length(unique(vertecies)), ncol=length(unique(vertecies)))
+rownames(matr) <- unique(vertecies)
+colnames(matr) <- unique(vertecies)
+names(lhs) <- lhs
+names(rhs) <- rhs
+
+for (g in c(1:40)) {
+  matr[lhs[g], rhs[g]] <- 1
+}
+network <- graph_from_adjacency_matrix(matr)
+par(cex=0.5)
+plot(network, layout=layout.kamada.kawai, vertex.color="green")
+
+library(visNetwork)
+
+# Prepare node and edge data
+nodes <- data.frame(
+  id = 1:vcount(network),
+  label = unique(vertecies),
+  size = degree(network) * 3
+)
+edges <- as_data_frame(network, what = "edges")
+edges["from"] <- sapply(edges["from"], function(from) nodes[from,]["id"])
+edges["to"] <- sapply(edges["to"], function(to) nodes[to,]["id"])
+visNetwork(nodes, edges)
 
