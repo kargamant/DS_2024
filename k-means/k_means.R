@@ -34,7 +34,7 @@ elbow_plt <- ggplot(df, aes(k_vals, wss))
 elbow_plt + geom_point() + labs(x="k") + scale_x_continuous(breaks=c(1:30))
 ggsave("elbow_plt.png")
 
-# the optimal k is 8
+# the optimal k is 7
 
 
 # trying on log scale
@@ -57,7 +57,7 @@ df["center_y"] <- centers_elec
 
 plt <- ggplot(df, aes(unlist(df["log_income"]), unlist(df["log_elec"]), color = unlist(df["cluster"])))
 plt + geom_point() + geom_point(aes(unlist(df["center_x"]), unlist(df["center_y"])), color="black") + labs(title="clusters", x="log_income", y="log_elec", colour="cluster")
-ggsave(paste("plt_k_", as.character(16), "_log.png"))
+ggsave(paste("plt_k_", as.character(k), "_log.png"))
 
 # finding optimal k for log scale
 df <- subset(df, df["log_income"]>4.5 & df["log_elec"]>2.8)
