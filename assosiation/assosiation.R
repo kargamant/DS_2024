@@ -10,7 +10,9 @@ summary(tr)
 itemFrequencyPlot(tr, topN = 10, type="absolute")
 
 # most frequent item13
-# largest transaction size 14
+tr_df <- as(tr, "data.frame")
+tr_df["size"] <- sapply(unlist(tr_df["items"]), function(itemset) length(unlist(strsplit(itemset, split=","))))
+# largest transaction size 25
 
 rules <- apriori(tr, parameter=list(supp=0.01, conf=0))
 inspect(rules)
@@ -117,5 +119,16 @@ nodes <- data.frame(
 edges <- as_data_frame(network, what = "edges")
 edges["from"] <- sapply(edges["from"], function(from) nodes[from,]["id"])
 edges["to"] <- sapply(edges["to"], function(to) nodes[to,]["id"])
-visNetwork(nodes, edges)
+graph <- visNetwork(nodes, edges)
+graph
+htmltools::save_html(graph, "graph.html")
+
+training <- tr[1:8000]
+test <- tr[-c(1:8000)]
+
+training_rules <- apriori(training, parameter=list(supp=0.01, conf=0.5))
+test_rules <- apriori(test, parameter=list(supp=0.01, conf=0.5))
+training_inspection <- inspect(training_rules)
+test_inspection <- inspect(test_rules)
+
 

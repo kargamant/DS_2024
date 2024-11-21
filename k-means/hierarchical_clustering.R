@@ -1,5 +1,6 @@
 matr <- dist(income_elec_state)
 
+matr
 h_clust <- hclust(matr, method="centroid")
 plot(h_clust)
 clusters <- 7
