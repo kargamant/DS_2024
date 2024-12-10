@@ -102,7 +102,7 @@ hold on;
 title(sprintf('lambda = %g', lambda))
 
 % -----------------------------------------------------------------------
-lambda = 0.1;
+lambda = 0;
 
 options = optimset('GradObj', 'on', 'MaxIter', 400);
 
