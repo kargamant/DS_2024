@@ -8,6 +8,7 @@ library(rattle)
 library(rpart.plot)
 library(RColorBrewer)
 fancyRpartPlot(tree)
+tree
 
 pr <- predict(tree, train, type="class")
 library('caret')
@@ -56,7 +57,8 @@ pr <- predict(tree_gini, test, type="class")
 confusionMatrix(as.factor(unlist(pr)), as.factor(unlist(test["MYDEPV"])))
 printcp(tree_gini)
 pruned_tree_gini <- prune(tree_gini, cp=0.03)
-pruned_tree_gini
+printcp(pruned_tree_gini)
+printcp(tree_gini)
 
 pr <- predict(pruned_tree_gini, train, type="class")
 confusionMatrix(as.factor(unlist(pr)), as.factor(unlist(train["MYDEPV"])))

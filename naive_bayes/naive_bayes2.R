@@ -8,8 +8,8 @@ test <- as.data.frame(test)
 males <- train[unlist(train["sex"]) == "M",]
 females <- train[unlist(train["sex"]) == "F",]
 
-train_males <- males[sample(nrow(males),3500),]
-train_females <- females[sample(nrow(females),3500),]
+train_males <- males[sample(nrow(males),350),]
+train_females <- females[sample(nrow(females),350),]
 new_train <- rbind(train_males, train_females)
 new_cl <- naiveBayes(sex ~ age + educ + income, data=new_train)
 new_cl
