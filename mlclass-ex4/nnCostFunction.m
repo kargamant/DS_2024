@@ -78,25 +78,22 @@ J = sum(sum((-y_matrix) .* log(h) - (1 - y_matrix) .* log(1 - h))) / m;
 J = J + (lambda / (2*m)) * (sum(sum(Theta1(:,2:end) .^ 2)) + sum(sum(Theta2(:,2:end) .^ 2)));
 
 for t = 1:m
-  % Step 1: Forward pass (already done above)
   a1 = [1; X(t, :)'];
   z2 = Theta1 * a1;
   a2 = [1; sigmoid(z2)];
   z3 = Theta2 * a2;
   a3 = sigmoid(z3);
 
-  % Step 2: Calculate error terms
   delta3 = a3 - y_matrix(t, :)';
   delta2 = (Theta2' * delta3)(2:end) .* sigmoidGradient(z2);
 
-  % Step 3: Accumulate gradients
   % delta(i) - opposite direction to what we want to change
   % a(i-1) - magnitude on what to change
   Theta1_grad = Theta1_grad + delta2 * a1';
   Theta2_grad = Theta2_grad + delta3 * a2';
 endfor
 
-% Step 4: Divide by m and add regularization
+
 Theta1_grad = (1/m) * Theta1_grad  + (lambda/m) * [zeros(size(Theta1,1),1) Theta1(:,2:end)];
 Theta2_grad = (1/m) * Theta2_grad + (lambda/m) * [zeros(size(Theta2,1),1) Theta2(:,2:end)];
 

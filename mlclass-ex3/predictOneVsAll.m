@@ -31,10 +31,13 @@ X = [ones(m, 1) X];
 %
 
 
+% X - 5000x401
+% all_theta' - 401x10
+% res - 5000x10 - probabilities for every example in X
+res = sigmoid(X * all_theta');
 
-res = all_theta * X';
 
-[max_vals, max_inds] = max(res, [], 1);
+[max_vals, max_inds] = max(res, [], 2);
 p=max_inds;
 
 
