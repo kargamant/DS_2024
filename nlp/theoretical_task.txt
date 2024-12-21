@@ -1,0 +1,29 @@
+4.8        (Text Analysis)  How does TF-IDF enhance the relevance of a search result?
+	The problem is that when we make request, it consists of some terms. And we treat them equally. 
+	We simply use tf(t, d) - term frequency to search, so the document with the highest tf will be prefered.
+	But what if every document have high tf for this term? This term seems to be quite broad and cover all documents. It may be not that important.
+	For example, the word phone in phone reviews is one of these cases. 
+	The idf metric helps us to prevent it. It describes importance of term among our corpus. It's log(N/df(t)) where df(t) number of documents where this term occur. So if df is high then idf low and vise versa.
+	TF-IDF is just product of TF and IDF, so it shows us relevance of certain term that accounts both frequency and importance. That increases accuracy of search results.
+
+4.9        (Text Analysis)  Why should we reduce the dimensions in text analysis? How to achieve that?
+	In NLP a common technic to store documents is Bag of words. Every document transforms into frequency vector, which has T(number of terms) dimensions with number of occurances of each term.
+	This T-dimensional space forms a bag of words. But there are some problems that we might encounter.
+	1. Complexity of language. Every language have stop words that must be removed, cause they don't give us much meaningful insights.
+	2. Many words are similar and often share same root. For example, words improve, improving, improvement, improves have same root - improv. 
+	Though it's not a valid word itself, but it's a valid term to describe all of these words that share similar meaning. This technic is called stemming.
+	
+4.10      (Text Analysis)  Yoyodyne Bank is an international bank that has customers from around the world. The bank plans to research the customer opinions using text analysis on social networks, such as Twitter, Facebook, and Google+.  By conducting the research Yoyodyne bank hopes to improve its services and bring in more customers.
+	
+a.      How should Yoyodyne Bank do such a text analysis?
+	1. Firstly, it needs to somehow gather the data from all these sources. It can be made with regular expressions or reading from popular formats of social networks APIs such as json or csv. 
+	We also should account for useful features that accompany a review. Number of stars on appstore, date of review, source rating etc.
+	2. It has to classify documents with reviews. We don't want to mess up reviews about insurance, credit cards and bank mobile app. So we probably should form several bag of words and tag documents accordingly to their topic.
+	3. Then it comes to more high level classification. We can use basic classifiers like naive bayes or logistic regression to classify reviews on good, bad or mixed. Or we can cluster them and research clusters.
+	
+
+b.      What are the advantages? What are the challenges?
+	1. The main advantage of this approach that it can help us to structure the pipeline and concentrate on reasearch.
+	2. There are several tricky challenges that we might face. Firstly, review can include opinion on several topics. For example, on our cashback program and insurance. 
+	In this case first level classification should be done more percisely. We should compare frequencies of different products that occur in this document. Perhaps, we can consider putting these reviews in a separate bin to explore later.
+	Also these reviews can be hardly classified on positive or negative. For instance, person might have responded to first product positively and to the second negatively.
